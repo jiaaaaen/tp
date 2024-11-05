@@ -107,7 +107,7 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`
 * When editing tags, the existing tags of the person will be removed i.e adding of tags is not cumulative.
 * You can remove all the person’s tags by typing `t/` without
     specifying any tags after it.
-* Note that you cannot edit `schedule` information using the `edit` command. Please use the `schedule` command instead.
+* Note that you cannot edit `schedule` and `socialMedia` information using the `edit` command. Please use the `schedule` and `socialMedia` command instead.
 
 Examples:
 *  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st person to be `91234567` and `johndoe@example.com` respectively.
@@ -139,11 +139,12 @@ Examples:
 
 Renames an existing tag in the address book.
 
-Format: `renameTag INDEX ot/OLDTAG nt/NEWTAG`
+Format: `renameTag ot/OLDTAG nt/NEWTAG`
 
 * Renames the tags called `OLDTAG` to `NEWTAG`.
 * Contacts with the tag `OLDTAG` will now have `NEWTAG`, with `OLDTAG` removed
 * If `OLDTAG` is not an existing tag, `[OLDTAG] tag is not found` will be returned.
+* If there are any contacts with both `[OLDTAG]` and `[NEWTAG]`, the `[OLDTAG]` will not be renamed as this will lead to duplicated tags.
 
 ### Adding Social Media : `socialMedia`
 
@@ -258,16 +259,36 @@ Examples:
 * `sort sch/descending` will sort by schedule in descending order
   ![result for 'sort descending'](images/sortByScheduleDesc.png)
 
+### Search persons by schedule range: `search`
+
+Searches for a list of persons within a given range of schedule 
+
+Format: `search [b/START_TIME] [en/END_TIME]`
+
+* `START_TIME` and `END_TIME` must adhere to the datetime format yyyy-MM-dd HH:mm
+* Either `[b/START_TIME]` or `[en/END_TIME]` has to be provided
+* It will search for schedules between the given `[b/START_TIME]` and `[en/END_TIME]`
+* If `[b/START_TIME]` is not provided, it will search for all schedules that is before `[en/END_TIME]`
+* If `[en/END_TIME]` is not provided, it will search for all schedules that is after `[b/START_TIME]`
+* Persons with no schedule given will not appear in the search results
+* Persons with only a date as a schedule but not time will be searched under the assumption that time is 00:00
+* Search result will be inclusive of the begin and end time
+
+Examples:
+* `search b/2024-11-11 12:00` will search for the list of persons with schedules after 2024-11-11 12:00
+* `search en/2024-11-12 12:00` will search for the list of persons with schedules before 2024-11-12 12:00
+* `search b/2024-11-11 12:00 en/2024-11-12 12:00` will search for the list of persons with schedules between 2024-11-11 12:00 and 2024-11-12 12:00
+  ![result for 'search b/2024-11-11 12:00 en/2024-11-12 12:00'](images/searchCommandSuccess.png)
+
 ### Backing up save file : `backup`
 
 Creates a backup of the current save file.
 
 Format: `backup`
 
-* Backup AddressBook data are saved automatically as a JSON file `[JAR file location]/backup/addressbook.json`.
-
+* Backup AddressBook data will be saved as a JSON file `[JAR file location]/backup/addressbook.json`.
+* If a addressbook.json file already exists in the backup folder it will be overwritten.
 * The backup file can be used in order to restore the AddressBook data in case of data loss, or to transfer the data to another device.
-
 * Users can safely move or copy the backup file to another device, without worrying above negative consequences.
 
 ### Clearing all entries : `clear`
